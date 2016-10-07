@@ -1,0 +1,20 @@
+{
+  "logger": "console",
+  "http": {
+    "protocol": "http",
+    "hostname": "localhost",
+    "port": 8888
+  },
+  "pg": {
+    "host": "${PGHOST-localhost}",
+    "port": "${PGPORT-5432}",
+    "user": "${PGUSER-convoy}",
+    "password": "${PGPASSWORD-password}",
+    "database": "${PGDATABASE-convoy}",
+    "max": 100,
+    "idleTimeoutMillis": 30000
+  },
+  "shipment": {
+    "maxOffers": 10
+  }
+}

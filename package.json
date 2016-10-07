@@ -1,0 +1,30 @@
+{
+  "name": "convoy-api",
+  "version": "0.0.0",
+  "description": "Convoy Shipment & Offer System",
+  "main": "index.js",
+  "scripts": {
+    "patch": "node commands/patch",
+    "start": "node index",
+    "test": "./node_modules/.bin/exam --multi-process test/entities test/lib",
+    "test-watch": "./node_modules/.bin/exam --watch test/entities test/lib",
+    "cover": "./node_modules/.bin/exam-cover test/entities test/lib",
+    "lint": "./node_modules/.bin/standard",
+    "report": "open coverage/lcov-report/index.html",
+    "mocha": "mocha test/entities test/lib"
+  },
+  "author": "Sam Eubank <sameubank@gmail.com>",
+  "license": "Unlicense",
+  "dependencies": {
+    "cedar": "0.3.2",
+    "lighter-config": "1.1.0",
+    "lighter-flagger": "1.1.0",
+    "lighter-type": "2.2.1",
+    "pg": "6.1.0",
+    "plans": "0.2.1"
+  },
+  "devDependencies": {
+    "exam": "1.4.5",
+    "standard": "8.3.0"
+  }
+}
