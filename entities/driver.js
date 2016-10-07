@@ -27,6 +27,12 @@ module.exports = Entity.extend(
         'WHERE driver_id = $1 AND accepted = false'
     },
 
+    /**
+     * Populate a driver object with its array of outstanding offers.
+     *
+     * @param  {Object}   entity  A driver object.
+     * @param  {Function} fn      Errback function: `fn(error, result)`.
+     */
     populateForGet: function (entity, fn) {
       db.query(this.sql.populate, [entity.id], function (error, result) {
         var data = {id: entity.id}

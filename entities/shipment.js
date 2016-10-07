@@ -41,6 +41,12 @@ module.exports = Entity.extend(
         'WHERE shipment_id = $1 AND accepted = $2'
     },
 
+    /**
+     * Return a minimal representation of a newly-created shipment.
+     *
+     * @param  {Object} entity  A shipment.
+     * @return {Object}         An object to return from the API.
+     */
     formatForPost: function (entity) {
       return {
         id: entity.id,
@@ -48,6 +54,12 @@ module.exports = Entity.extend(
       }
     },
 
+    /**
+     * Get outstanding offers (or the accepted offer) for a shipment.
+     *
+     * @param  {Object} entity  A shipment.
+     * @return {Function}   fn  An errback function: `fn(error, data)`
+     */
     populateForGet: function (entity, fn) {
       var id = entity.id
       var accepted = entity.accepted
@@ -73,6 +85,12 @@ module.exports = Entity.extend(
       })
     },
 
+    /**
+     * Create a shipment and its offers.
+     *
+     * @param  {Object}   data  Entity data.
+     * @param  {Function} fn    An errback function: `fn(error, result)`.
+     */
     create: function (data, fn) {
       var self = this
       this._super.create.call(this, data, function (error, shipment) {

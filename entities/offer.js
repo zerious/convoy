@@ -36,8 +36,15 @@ var Offer = module.exports = Entity.extend(
         'WHERE id = $1 AND accepted = false'
     },
 
+    // Respond with a 404 because offers are created when shipments are created.
     handlePost: server.punt,
 
+    /**
+     * Handle a PUT request by accepting or passing on an offer.
+     *
+     * @param  {Obect} request   An HTTP request.
+     * @param  {Obect} response  An HTTP response.
+     */
     handlePut: function handlePut (request, response) {
       var self = this
       var id = request.id
@@ -92,6 +99,8 @@ var Offer = module.exports = Entity.extend(
       }
     },
 
+    // Respond with a 404 because offers are viewable via GET /driver/* or
+    // GET /shipment/*.
     handleGet: server.punt
   }
 )
