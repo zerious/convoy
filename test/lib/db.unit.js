@@ -1,8 +1,10 @@
 'use strict'
-/* global describe it mock */
+/* global describe it */
 
 // Support running with mocha, if that's your preference.
 var is = global.is || require('exam/lib/is')
+var mock = global.mock || require('exam/lib/mock')
+var unmock = mock.unmock
 
 // var pg = require('pg')
 var db = require('../../lib/db')
@@ -21,6 +23,9 @@ describe('db', function () {
       })
       db.query('SELECT * FROM offer', [], function (error, result) {
         is.error(error)
+        is(error, log.error.value[0][0])
+        unmock(log)
+        unmock(db.pool)
         done()
       })
     })
