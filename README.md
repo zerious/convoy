@@ -9,6 +9,15 @@ amount of CPU & memory needed so that the web service can handle many
 concurrent requests with very low latency. Any performance issues would
 probably be due to PostgreSQL.
 
+The code is fairly thoroughly tested:
+```
+======== Coverage summary ========
+Statements   : 94.3% ( 248/263 )
+Branches     : 74.19% ( 69/93 )
+Functions    : 98.15% ( 53/54 )
+Lines        : 94.3% ( 248/263 )
+```
+
 ## Setup
 
 1. Clone this repo.
