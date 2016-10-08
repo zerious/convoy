@@ -58,7 +58,7 @@ module.exports = Entity.extend(
      * Get outstanding offers (or the accepted offer) for a shipment.
      *
      * @param  {Object} entity  A shipment.
-     * @return {Function}   fn  An errback function: `fn(error, data)`
+     * @return {Function}   fn  An errback function: `fn(error, data)`.
      */
     populateForGet: function (entity, fn) {
       var id = entity.id
