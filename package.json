@@ -6,7 +6,7 @@
   "scripts": {
     "patch": "node commands/patch",
     "start": "node index",
-    "test": "./node_modules/.bin/exam --multi-process test/entities test/lib",
+    "test": "./node_modules/.bin/exam test/entities test/lib",
     "test-watch": "./node_modules/.bin/exam --watch test/entities test/lib",
     "cover": "./node_modules/.bin/exam-cover test/entities test/lib",
     "lint": "./node_modules/.bin/standard",
