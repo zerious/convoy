@@ -36,6 +36,9 @@ var Offer = module.exports = Entity.extend(
         'WHERE id = $1 AND accepted = false'
     },
 
+    E_NOT_ACTIVE: 'Not an Active Offer',
+    E_INVALID_STATUS: 'Status must be "ACCEPT" or "PASS"',
+
     // Respond with a 404 because offers are created when shipments are created.
     handlePost: server.punt,
 
@@ -54,28 +57,23 @@ var Offer = module.exports = Entity.extend(
         case 'ACCEPT':
           db.query(self.sql.get, [id], function (error, result) {
             if (error || !result.rows.length) {
-              return response.fail(error || new Error('Not an Active Offer'))
+              return response.fail(error || new Error(self.E_NOT_ACTIVE))
             }
             var offer = new Offer(result.rows[0])
             var shipmentId = offer.shipmentId
             db.query(self.sql.acceptShipment, [shipmentId], function (error, result) {
               if (error || !result.rowCount) {
-                return response.fail(error || new Error('Not an Active Offer'))
+                return response.fail(error || new Error(self.E_NOT_ACTIVE))
               }
               var remaining = 2
-              db.query(self.sql.acceptOffer, [id], function (newError, result) {
+              db.query(self.sql.acceptOffer, [id], queried)
+              db.query(self.sql.cull, [shipmentId, id], queried)
+
+              function queried (newError, result) {
                 error = error || newError
-                if (!--remaining) {
-                  done()
+                if (--remaining) {
+                  return
                 }
-              })
-              db.query(self.sql.cull, [shipmentId, id], function (newError, result) {
-                error = error || newError
-                if (!--remaining) {
-                  done()
-                }
-              })
-              function done () {
                 if (error) {
                   return response.fail(error)
                 }
@@ -88,14 +86,14 @@ var Offer = module.exports = Entity.extend(
         case 'PASS':
           db.query(self.sql.pass, [id], function (error, result) {
             if (error || !result.rowCount) {
-              return response.fail(error || new Error('Not an Active Offer'))
+              return response.fail(error || new Error(self.E_NOT_ACTIVE))
             }
             response.json({})
           })
           break
 
         default:
-          response.fail(new Error('Status must be "ACCEPT" or "PASS"'))
+          response.fail(new Error(self.E_INVALID_STATUS))
       }
     },
 

@@ -3,20 +3,16 @@
 ## Overview
 
 I implemented a simple Node.js-based API that connects to a PostgreSQL DB. The
-data model is basic, designed only to address the requirements for now. I used
-the `http` module directly rather than using `express`. This will minimize the
-amount of CPU & memory needed so that the web service can handle many
-concurrent requests with very low latency. Any performance issues would
-probably be due to PostgreSQL.
+data model is basic - designed only to address the requirements for now. I used
+the `http` module directly rather than using `express`. This minimizes the CPU
+& memory usage so the web service can handle many concurrent requests with very
+low latency. In a production scenario, the PostgreSQL connection would be the
+main bottleneck.
 
-The code is fairly thoroughly tested:
-```
-======== Coverage summary ========
-Statements   : 94.3% ( 248/263 )
-Branches     : 74.19% ( 69/93 )
-Functions    : 98.15% ( 53/54 )
-Lines        : 94.3% ( 248/263 )
-```
+The code has 100% test coverage, and it does a fair amount of error checking
+and logging. However, many unrecognized inputs currently send 404 Not Found.
+This could be improved by adding more informative errors in the future,
+especially if the API was intended to be used by 3rd parties.
 
 ## Setup
 

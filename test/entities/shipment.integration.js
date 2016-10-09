@@ -3,12 +3,16 @@
 
 // Support running with mocha, if that's your preference.
 var is = global.is || require('exam/lib/is')
+var mock = global.mock || require('exam/lib/mock')
+var unmock = mock.unmock
 
 var helper = require('../helpers/helper')
 helper.quiet()
 var app = require('../../index')
 helper.loud()
 helper.wait()
+var server = require('../../lib/server')
+var db = require('../../lib/db')
 
 describe('/shipment', function () {
   before(function (done) {
@@ -53,6 +57,46 @@ describe('/shipment', function () {
         done()
       })
     })
+
+    it('returns an error when failing to INSERT a shipment', function (done) {
+      mock(db, {
+        query: function (sql, values, fn) {
+          fn(new Error('FAIL'))
+        }
+      })
+      helper.request({
+        method: 'POST',
+        path: '/shipment',
+        body: {capacity: 12}
+      }, function (body) {
+        is(body.error, 'FAIL')
+        unmock(db)
+        done()
+      })
+    })
+
+    it('returns an error when failing to SELECT drivers', function (done) {
+      mock(db, {
+        query: function (sql, values, fn) {
+          // Fake a new shipment.
+          if (/INSERT INTO shipment/i.test(sql)) {
+            fn(null, {rowCount: 1, rows: [{id: 1}]})
+          // Fail to get drivers.
+          } else {
+            fn(new Error('FAIL'))
+          }
+        }
+      })
+      helper.request({
+        method: 'POST',
+        path: '/shipment',
+        body: {capacity: 12}
+      }, function (body) {
+        is(body.error, 'FAIL')
+        unmock(db)
+        done()
+      })
+    })
   })
 
   describe('GET', function () {
@@ -89,7 +133,7 @@ describe('/shipment', function () {
         method: 'GET',
         path: '/shipment/' + 2e9
       }, function (body) {
-        is(body.error, 'Not Found')
+        is(body.error, server.E_NOT_FOUND)
         done()
       })
     })
@@ -99,7 +143,32 @@ describe('/shipment', function () {
         method: 'GET',
         path: '/shipment/NaN'
       }, function (body) {
-        is(body.error, 'Not Found')
+        is(body.error, server.E_NOT_FOUND)
+        done()
+      })
+    })
+
+    it('returns an error if offers failed to populate', function (done) {
+      mock(db, {
+        query: function (sql, values, fn) {
+          // Make the DB return a fake shipment.
+          if (!/offer/i.test(sql)) {
+            fn(null, {rows: [{
+              id: 1,
+              accepted: false
+            }]})
+          // Fail when trying to SELECT offers.
+          } else {
+            fn(new Error('FAIL'))
+          }
+        }
+      })
+      helper.request({
+        method: 'GET',
+        path: '/shipment/1'
+      }, function (body) {
+        is(body.error, 'FAIL')
+        unmock(db)
         done()
       })
     })

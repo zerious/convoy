@@ -3,12 +3,16 @@
 
 // Support running with mocha, if that's your preference.
 var is = global.is || require('exam/lib/is')
+var mock = global.mock || require('exam/lib/mock')
+var unmock = mock.unmock
 
 var helper = require('../helpers/helper')
 helper.quiet()
 var app = require('../../index')
 helper.loud()
 helper.wait()
+var server = require('../../lib/server')
+var db = require('../../lib/db')
 
 describe('/driver', function () {
   before(function (done) {
@@ -73,7 +77,7 @@ describe('/driver', function () {
         method: 'GET',
         path: '/driver/' + 2e9
       }, function (body) {
-        is(body.error, 'Not Found')
+        is(body.error, server.E_NOT_FOUND)
         done()
       })
     })
@@ -83,7 +87,32 @@ describe('/driver', function () {
         method: 'GET',
         path: '/driver/NaN'
       }, function (body) {
-        is(body.error, 'Not Found')
+        is(body.error, server.E_NOT_FOUND)
+        done()
+      })
+    })
+
+    it('returns an error if offers failed to populate', function (done) {
+      mock(db, {
+        query: function (sql, values, fn) {
+          // Make the DB return a fake driver.
+          if (!/offer/i.test(sql)) {
+            fn(null, {rows: [{
+              id: 1,
+              accepted: false
+            }]})
+          // Fail when trying to SELECT offers.
+          } else {
+            fn(new Error('FAIL'))
+          }
+        }
+      })
+      helper.request({
+        method: 'GET',
+        path: '/driver/1'
+      }, function (body) {
+        is(body.error, 'FAIL')
+        unmock(db)
         done()
       })
     })
