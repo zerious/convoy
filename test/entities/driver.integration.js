@@ -11,6 +11,7 @@ helper.quiet()
 var app = require('../../index')
 helper.loud()
 helper.wait()
+var driver = require('../../entities/driver')
 var server = require('../../lib/server')
 var db = require('../../lib/db')
 
@@ -114,6 +115,63 @@ describe('/driver', function () {
         is(body.error, 'FAIL')
         unmock(db)
         done()
+      })
+    })
+
+    it('does not allow SQL injection', function (done) {
+      helper.request({
+        method: 'POST',
+        path: '/driver',
+        body: {capacity: '1);DROP TABLE driver;INSERT INTO shipment (accepted, capacity) VALUES (false, 2'}
+      }, function (body) {
+        is(body.error, '"capacity" must be a number.')
+        var sql = 'SELECT COUNT(*) FROM driver'
+        helper.query(sql, [], function (error, result) {
+          is.falsy(error)
+          done()
+        })
+      })
+    })
+
+    it('would not allow SQL injection even if validation was omitted', function (done) {
+      mock(driver, {
+        validate: function (object, fn) {
+          fn()
+        }
+      })
+      helper.request({
+        method: 'POST',
+        path: '/driver',
+        body: {capacity: '1);DROP TABLE driver;INSERT INTO shipment (accepted, capacity) VALUES (false, 2'}
+      }, function (body) {
+        is.in(body.error, 'invalid input syntax for type double precision')
+        var sql = 'SELECT COUNT(*) FROM driver'
+        helper.query(sql, [], function (error, result) {
+          is.falsy(error)
+          unmock(driver)
+          done()
+        })
+      })
+    })
+
+    it('would not allow SQL injection even if validation was omitted and single quotes were used', function (done) {
+      mock(driver, {
+        validate: function (object, fn) {
+          fn()
+        }
+      })
+      helper.request({
+        method: 'POST',
+        path: '/driver',
+        body: {capacity: "1');DROP TABLE driver;INSERT INTO shipment (accepted, capacity) VALUES (false, '2"}
+      }, function (body) {
+        is.in(body.error, 'invalid input syntax for type double precision')
+        var sql = 'SELECT COUNT(*) FROM driver'
+        helper.query(sql, [], function (error, result) {
+          is.falsy(error)
+          unmock(driver)
+          done()
+        })
       })
     })
   })
